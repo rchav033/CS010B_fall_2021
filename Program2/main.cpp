@@ -98,27 +98,33 @@ Date :: Date(){ // First constructor with no parameters sets the date January 1s
   //cout << day<<"/"<<month<<"/"<<year<<endl;
 }
 Date :: Date(unsigned m, unsigned d, unsigned y){
+  bool date_error = false;
   unsigned days_per_month;
-  days_per_month = daysPerMonth(m, y);
-  if (m >12 && d>days_per_month){
-    //TODO: Correct Date Values
-    day = 31;
-    month = 12;
-    cout << "Invalid date values: Date corrected to "<< month << "/" << day << "/" << y << endl;
-  } else if (m > 12){
-    month = 12;
-    day = d;
-    cout << "Invalid date values: Date corrected to "<< month << "/" << day << "/" << y <<endl;
-  } else if (d > days_per_month){
-    day = days_per_month;
-    month = m;
-    cout << "Invalid date values: Date corrected to "<< month << "/" << day << "/" << y <<endl;
-  } else{
-    month = m;
-    day = d;
+
+  if (m > 12){
+    m = 12;
+    date_error = true;
+  }else if (m == 0){
+    m =1;
+    date_error = true;
   }
+
+  days_per_month = daysPerMonth(m, y);
+  if(d > days_per_month){
+    d = days_per_month;
+    date_error = true;
+  }else if (d == 0){
+    d = 1;
+    date_error = true;
+  }
+  month = m;
+  day = d;
   monthName = name(month);
   year = y;
+
+  if(date_error){
+    cout << "Invalid date values: Date corrected to "<< month << "/" << day << "/" << year << ".\n";
+  }
   return;
 }
 
@@ -128,18 +134,29 @@ Date :: Date(const string &mn, unsigned d, unsigned y){
   unsigned days_in_month;
 
   num_of_month = number(mn);
-  name_of_month = name(num_of_month);
+  if (num_of_month == 0){
+    cout << "Invalid month name: the Date was set to 1/1/2000." << endl;
+    monthName = "January";
+    month = 1;
+    day = 1;
+    year = 2000;
+    return;
+  }
+  month = num_of_month;
+  monthName = name(num_of_month);
+  year =y;
   days_in_month = daysPerMonth(num_of_month,y);
 
-  if (name_of_month == mn && d <days_in_month){
-    day = 31;
-    monthName = mn;
-    cout << "Invalid date values: Date corrected to "<< monthName << "/" << day << "/" << y << endl;
-  } else if ( d < days_in_month){
-    monthName = "December";
+  if (d > days_in_month){
+    day = days_in_month;
+    cout << "Invalid date values: Date corrected to "<< month << "/" << day << "/" << year << ".\n";
+  } else if(d == 0){
+    day = 1;
+    cout << "Invalid date values: Date corrected to "<< month << "/" << day << "/" << year << ".\n";
+  }else {
     day = d;
-
   }
+  return;
 }
 void Date :: printNumeric()const{
   cout << month << "/" << day << "/" <<year;
@@ -149,9 +166,17 @@ void Date :: printAlpha()const{
 }
 
 bool Date::isLeap(unsigned y) const{
-  if ( y %4 == 0 && y % 400 ==0){
-    return true;
-  } else {
+  if ( y % 4 == 0 ){
+    if (y % 100 == 0){
+      if (y % 400 == 0){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      return true;
+    }
+  }else{
     return false;
   }
 }
@@ -163,9 +188,9 @@ unsigned Date::daysPerMonth(unsigned m, unsigned y) const{
     }else{
       num = 28;
     }
-  } else if (m == 1||3||5||7||8||10||12){
+  } else if (m == 1|| m== 3|| m == 5|| m == 7|| m == 8|| m == 10|| m == 12){
     num = 31;
-  }else if (m==4||6||9||11){
+  }else if (m==4|| m == 6|| m == 9|| m == 11){
     num =30;
   }
   return num;
